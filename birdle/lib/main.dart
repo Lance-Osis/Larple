@@ -72,10 +72,67 @@ class GamePage extends StatelessWidget {
               children:[
                 for (var letter in guess)
                   Tile(letter.char, letter.type)
-              ]
-            )
+              ],
+            ),
+          GuessInput(
+            onSubmitGuess: (guess) {
+              print(guess);
+            }
+          )
         ]
       ),
     );
   }
+}
+
+class GuessInput extends StatelessWidget {
+  GuessInput({super.key, required this.onSubmitGuess});
+
+  final void Function(String) onSubmitGuess;
+  final TextEditingController _textEdit = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  void _onSubmit() {
+    onSubmitGuess(_textEdit.text);
+    _textEdit.clear();
+    _focusNode.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //building the UI next
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              maxLength: 5,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(35)),
+                )
+              ),
+              controller: _textEdit,
+              focusNode: _focusNode,
+              autofocus: true,
+              onSubmitted: (input) {
+                _onSubmit();
+              },
+            )
+          )
+        ),
+        IconButton(
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.arrow_circle_up),
+          onPressed: () {
+            onSubmitGuess(_textEdit.text.trim());
+            _textEdit.clear();
+            _focusNode.requestFocus();
+          },
+        )
+      ]
+    );
+  }
+
 }
