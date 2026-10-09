@@ -12,20 +12,22 @@ class Tile extends StatelessWidget {
   final HitType hitType;
 
   @override
-  Widget build(BuildContext context){
-    return Container(
-      width: 60,
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 500),
+      curve: Curves.bounceIn,
       height: 60,
+      width: 60,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
-        color: switch (hitType) {
+        color: switch (hitType){
           HitType.hit => Colors.green,
           HitType.partial => Colors.yellow,
           HitType.miss => Colors.grey,
           _ => Colors.white,
-        }
+        },
       ),
-      child: Center(
+        child: Center(
         child: Text(
           letter.toUpperCase(),
           style: Theme.of(context).textTheme.titleLarge,
@@ -42,21 +44,27 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        body: Center(child: GamePage()),
         appBar: AppBar(
           title: const Align(
             alignment: Alignment.center,
             child: Text('Larple'),
           ),
         ), 
-        body: Center(child: GamePage(),)
+        
       ),
     );
   }
 }
 
-class GamePage extends StatelessWidget {
+class GamePage extends StatefulWidget {
   GamePage({super.key});
 
+  @override
+  State<GamePage> createState() => _GamePage();
+}
+
+class _GamePage extends State<GamePage> {
   final Game _game = Game();
 
   @override
@@ -75,8 +83,10 @@ class GamePage extends StatelessWidget {
               ],
             ),
           GuessInput(
-            onSubmitGuess: (guess) {
-              print(guess);
+            onSubmitGuess: (String guess) {
+              setState(() {
+                _game.guess(guess);
+              });
             }
           )
         ]
@@ -85,17 +95,30 @@ class GamePage extends StatelessWidget {
   }
 }
 
-class GuessInput extends StatelessWidget {
-  GuessInput({super.key, required this.onSubmitGuess});
+class GuessInput extends StatefulWidget {
+  const GuessInput({super.key, required this.onSubmitGuess});
 
   final void Function(String) onSubmitGuess;
+
+  @override
+  State<GuessInput> createState() => _guessInputState();
+}
+
+class _guessInputState extends State<GuessInput> {
   final TextEditingController _textEdit = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
   void _onSubmit() {
-    onSubmitGuess(_textEdit.text);
+    widget.onSubmitGuess(_textEdit.text.trim());
     _textEdit.clear();
     _focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    _textEdit.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -125,11 +148,7 @@ class GuessInput extends StatelessWidget {
         IconButton(
           padding: EdgeInsets.zero,
           icon: const Icon(Icons.arrow_circle_up),
-          onPressed: () {
-            onSubmitGuess(_textEdit.text.trim());
-            _textEdit.clear();
-            _focusNode.requestFocus();
-          },
+          onPressed: _onSubmit
         )
       ]
     );

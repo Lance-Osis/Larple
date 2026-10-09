@@ -45,6 +45,7 @@ const List<String> legalGuesses = [
   'abled',
   'abode',
   'abort',
+  'rebat',
 ];
 
 /// Game state of a single round of Birdle,
